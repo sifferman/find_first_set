@@ -13,6 +13,12 @@ This module is compatible with [FuseSoC](https://github.com/olofk/fusesoc). It's
 
 ## Usage
 
+To download via `curl`:
+
+```bash
+curl -LJO https://raw.githubusercontent.com/E4tHam/find_first_set/main/rtl/ffs.v
+```
+
 To add this library via FuseSoC:
 
 ```bash
