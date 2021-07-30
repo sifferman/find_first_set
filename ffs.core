@@ -1,0 +1,31 @@
+CAPI=2:
+name: e4tham::ffs:1.0.0
+description: Find first set
+
+filesets:
+  # default
+  rtl:
+    files:
+      - rtl/ffs.v: {file_type: verilogSource-2001}
+  # simulation
+  tb:
+    files:
+      - sim/tb.v: {file_type: verilogSource}
+
+
+targets:
+  default: &default
+    filesets:
+      - rtl
+
+  sim: # fusesoc run --target sim e4tham::ffs
+    <<: *default
+    description: Simulate the design
+    default_tool: icarus
+    filesets_append:
+      - tb
+    toplevel: top_tb
+    tools:
+      icarus:
+        iverilog_options:
+          - -g2001
