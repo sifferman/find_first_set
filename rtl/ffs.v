@@ -9,9 +9,9 @@ module ffs_m #(
     parameter INPUT_WIDTH   = 8,
     parameter SIDE          = 0
 ) (
-    input     [INPUT_WIDTH-1:0] in,
-    output                      valid,
-    output   [OUTPUT_WIDTH-1:0] out
+    input                                 [INPUT_WIDTH-1:0] in,
+    output                                                  valid,
+    output   [(`__E4THAM__FFS__GET_DEPTH(INPUT_WIDTH))-1:0] out
 );
 
     localparam OUTPUT_WIDTH  = `__E4THAM__FFS__GET_DEPTH(INPUT_WIDTH);
