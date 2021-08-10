@@ -7,19 +7,26 @@
 
 module ffs_m #(
     parameter INPUT_WIDTH   = 8,
-    parameter SIDE          = 0
+    parameter SIDE          = 1'b0
 ) (
-    input                                 [INPUT_WIDTH-1:0] in,
+    input            [((INPUT_WIDTH>=1)?INPUT_WIDTH:1)-1:0] in,
     output                                                  valid,
     output   [(`__E4THAM__FFS__GET_DEPTH(INPUT_WIDTH))-1:0] out
 );
 
-    localparam OUTPUT_WIDTH  = `__E4THAM__FFS__GET_DEPTH(INPUT_WIDTH);
 
-    localparam LEFT_INPUT_WIDTH = INPUT_WIDTH / 2;
+    initial begin
+        if ( INPUT_WIDTH < 1 ) begin
+            $display( "WARNING: ffs input width updated from %0d to 1.", INPUT_WIDTH );
+        end
+    end
+
+    localparam OUTPUT_WIDTH  = `__E4THAM__FFS__GET_DEPTH(((INPUT_WIDTH>=1)?INPUT_WIDTH:1));
+
+    localparam LEFT_INPUT_WIDTH = ((INPUT_WIDTH>=1)?INPUT_WIDTH:1) / 2;
     localparam LEFT_OUTPUT_WIDTH = `__E4THAM__FFS__GET_DEPTH(LEFT_INPUT_WIDTH);
 
-    localparam RIGHT_INPUT_WIDTH = INPUT_WIDTH - LEFT_INPUT_WIDTH;
+    localparam RIGHT_INPUT_WIDTH = ((INPUT_WIDTH>=1)?INPUT_WIDTH:1) - LEFT_INPUT_WIDTH;
     localparam RIGHT_OUTPUT_WIDTH = `__E4THAM__FFS__GET_DEPTH(RIGHT_INPUT_WIDTH);
 
 
@@ -56,7 +63,7 @@ module ffs_m #(
             assign right_valid = 1'b0;
             assign right_out = 1'bx;
         end
-        if ( RIGHT_INPUT_WIDTH == 1 ) begin : right_bc
+        if ( RIGHT_INPUT_WIDTH == 1 ) begin : right_bc1
             wire [RIGHT_INPUT_WIDTH-1:0] right_in = in[ 0 +: RIGHT_INPUT_WIDTH ];
             assign right_valid = right_in;
             assign right_out = right_valid ? 1'b0 : 1'bx;
@@ -70,12 +77,12 @@ module ffs_m #(
             );
         end
 
-        if ( SIDE == 0 ) begin
+        if ( SIDE == 1'b0 ) begin
             assign out =    left_valid  ? ( left_out + RIGHT_INPUT_WIDTH )  :
                             right_valid ? ( right_out )                     :
                             {OUTPUT_WIDTH{1'bx}};
         end
-        if ( SIDE == 1 ) begin
+        if ( SIDE == 1'b1 ) begin
             assign out =    right_valid ? ( right_out )                     :
                             left_valid  ? ( left_out + RIGHT_INPUT_WIDTH )  :
                             {OUTPUT_WIDTH{1'bx}};
