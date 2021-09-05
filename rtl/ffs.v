@@ -15,11 +15,10 @@ module ffs_m #(
 );
 
 
-    initial begin
-        if ( INPUT_WIDTH < 1 ) begin
-            $display( "WARNING: ffs input width updated from %0d to 1.", INPUT_WIDTH );
-        end
-    end
+    generate if ( INPUT_WIDTH < 1 ) begin
+        initial $display( "WARNING: ffs input width updated from %0d to 1.", INPUT_WIDTH );
+    end endgenerate
+
 
     localparam OUTPUT_WIDTH  = `__E4THAM__FFS__GET_DEPTH(((INPUT_WIDTH>=1)?INPUT_WIDTH:1));
 
