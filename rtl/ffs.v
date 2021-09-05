@@ -6,12 +6,13 @@
 
 
 module ffs_m #(
-    parameter INPUT_WIDTH   = 8,
-    parameter SIDE          = 1'b0
+    parameter INPUT_WIDTH   = 8,    // input vector width
+    parameter SIDE          = 1'b0, // 0 or 1 means counting (msb->lsb) or (lsb->msb)
+    parameter USE_X         = 1'b0  // (for debugging) invalid inputs will have {x} as output
 ) (
-    input            [((INPUT_WIDTH>=1)?INPUT_WIDTH:1)-1:0] in,
-    output                                                  valid,
-    output   [(`__E4THAM__FFS__GET_DEPTH(INPUT_WIDTH))-1:0] out
+    input                [((INPUT_WIDTH>=1)?INPUT_WIDTH:1)-1:0] in,
+    output wire                                                 valid,
+    output wire  [(`__E4THAM__FFS__GET_DEPTH(INPUT_WIDTH))-1:0] out
 );
 
 
@@ -79,7 +80,7 @@ module ffs_m #(
         end
 
         // combine left and right back together
-        case ({USE_X,SIDE})
+        case ({ ((2'b01&USE_X)<<1) | (2'b01&SIDE) })
             2'b00: assign out = left_valid  ? ( left_out + RIGHT_INPUT_WIDTH )  :
                                 ( right_out );
             2'b01: assign out = right_valid ? ( right_out )                     :
