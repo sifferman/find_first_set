@@ -40,12 +40,13 @@ module ffs_m #(
         // left base case
         if ( LEFT_INPUT_WIDTH == 0 ) begin : left_bc0
             assign left_valid = 1'b0;
-            assign left_out = 1'bx;
+            if ( USE_X )    assign left_out = 1'bx;
         end
         if ( LEFT_INPUT_WIDTH == 1 ) begin : left_bc1
             wire [LEFT_INPUT_WIDTH-1:0] left_in = in[ RIGHT_INPUT_WIDTH +: LEFT_INPUT_WIDTH ];
             assign left_valid = left_in;
-            assign left_out = left_valid ? 1'b0 : 1'bx;
+            if ( USE_X )    assign left_out = left_valid ? 1'b0 : 1'bx;
+            else            assign left_out = 1'b0;
         end
         // left recursive call
         if ( LEFT_INPUT_WIDTH > 1 ) begin : left_recursion
@@ -60,12 +61,13 @@ module ffs_m #(
         // right base case
         if ( RIGHT_INPUT_WIDTH == 0 ) begin : right_bc0
             assign right_valid = 1'b0;
-            assign right_out = 1'bx;
+            if ( USE_X )    assign right_out = 1'bx;
         end
         if ( RIGHT_INPUT_WIDTH == 1 ) begin : right_bc1
             wire [RIGHT_INPUT_WIDTH-1:0] right_in = in[ 0 +: RIGHT_INPUT_WIDTH ];
             assign right_valid = right_in;
-            assign right_out = right_valid ? 1'b0 : 1'bx;
+            if ( USE_X )    assign right_out = right_valid ? 1'b0 : 1'bx;
+            else            assign right_out = 1'b0;
         end
         if ( RIGHT_INPUT_WIDTH > 1 ) begin : right_recursion
             wire [RIGHT_INPUT_WIDTH-1:0] right_in = in[ 0 +: RIGHT_INPUT_WIDTH ];
@@ -76,16 +78,19 @@ module ffs_m #(
             );
         end
 
-        if ( SIDE == 1'b0 ) begin
-            assign out =    left_valid  ? ( left_out + RIGHT_INPUT_WIDTH )  :
-                            right_valid ? ( right_out )                     :
-                            {OUTPUT_WIDTH{1'bx}};
-        end
-        if ( SIDE == 1'b1 ) begin
-            assign out =    right_valid ? ( right_out )                     :
-                            left_valid  ? ( left_out + RIGHT_INPUT_WIDTH )  :
-                            {OUTPUT_WIDTH{1'bx}};
-        end
+        // combine left and right back together
+        case ({USE_X,SIDE})
+            2'b00: assign out = left_valid  ? ( left_out + RIGHT_INPUT_WIDTH )  :
+                                ( right_out );
+            2'b01: assign out = right_valid ? ( right_out )                     :
+                                ( left_out + RIGHT_INPUT_WIDTH );
+            2'b10: assign out = left_valid  ? ( left_out + RIGHT_INPUT_WIDTH )  :
+                                right_valid ? ( right_out )                     :
+                                {OUTPUT_WIDTH{1'bx}};
+            2'b11: assign out = right_valid ? ( right_out )                     :
+                                left_valid  ? ( left_out + RIGHT_INPUT_WIDTH )  :
+                                {OUTPUT_WIDTH{1'bx}};
+        endcase
 
     endgenerate
 
