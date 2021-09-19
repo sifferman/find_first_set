@@ -52,7 +52,7 @@ module ffs_m #(
         // left recursive call
         if ( LEFT_INPUT_WIDTH > 1 ) begin : left_recursion
             wire [LEFT_INPUT_WIDTH-1:0] left_in = in[ RIGHT_INPUT_WIDTH +: LEFT_INPUT_WIDTH ];
-            ffs_m #(LEFT_INPUT_WIDTH,SIDE) ffs (
+            ffs_m #(LEFT_INPUT_WIDTH,SIDE,USE_X) ffs (
                 left_in,
                 left_valid,
                 left_out
@@ -72,7 +72,7 @@ module ffs_m #(
         end
         if ( RIGHT_INPUT_WIDTH > 1 ) begin : right_recursion
             wire [RIGHT_INPUT_WIDTH-1:0] right_in = in[ 0 +: RIGHT_INPUT_WIDTH ];
-            ffs_m #(RIGHT_INPUT_WIDTH,SIDE) ffs (
+            ffs_m #(RIGHT_INPUT_WIDTH,SIDE,USE_X) ffs (
                 right_in,
                 right_valid,
                 right_out
