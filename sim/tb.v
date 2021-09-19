@@ -3,7 +3,7 @@
 
 
 `ifdef LINTER
-    `include "../rtl/ffs.v"
+    `include "rtl/ffs.v"
 `endif
 
 

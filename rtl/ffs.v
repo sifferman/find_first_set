@@ -70,6 +70,7 @@ module ffs_m #(
             if ( USE_X )    assign right_out = right_valid ? 1'b0 : 1'bx;
             else            assign right_out = 1'b0;
         end
+        // right recursive call
         if ( RIGHT_INPUT_WIDTH > 1 ) begin : right_recursion
             wire [RIGHT_INPUT_WIDTH-1:0] right_in = in[ 0 +: RIGHT_INPUT_WIDTH ];
             ffs_m #(RIGHT_INPUT_WIDTH,SIDE,USE_X) ffs (
@@ -80,18 +81,20 @@ module ffs_m #(
         end
 
         // combine left and right back together
-        case ({ ((2'b01&USE_X)<<1) | (2'b01&SIDE) })
-            2'b00: assign out = left_valid  ? ( left_out + RIGHT_INPUT_WIDTH )  :
-                                ( right_out );
-            2'b01: assign out = right_valid ? ( right_out )                     :
-                                ( left_out + RIGHT_INPUT_WIDTH );
-            2'b10: assign out = left_valid  ? ( left_out + RIGHT_INPUT_WIDTH )  :
-                                right_valid ? ( right_out )                     :
-                                {OUTPUT_WIDTH{1'bx}};
-            2'b11: assign out = right_valid ? ( right_out )                     :
-                                left_valid  ? ( left_out + RIGHT_INPUT_WIDTH )  :
-                                {OUTPUT_WIDTH{1'bx}};
-        endcase
+        if      ( !USE_X && !SIDE ) assign out =
+            left_valid  ? ( left_out + RIGHT_INPUT_WIDTH )  :
+            ( right_out );
+        else if ( !USE_X &&  SIDE ) assign out =
+            right_valid ? ( right_out )                     :
+            ( left_out + RIGHT_INPUT_WIDTH );
+        else if (  USE_X && !SIDE ) assign out =
+            left_valid  ? ( left_out + RIGHT_INPUT_WIDTH )  :
+            right_valid ? ( right_out )                     :
+            {OUTPUT_WIDTH{1'bx}};
+        else if (  USE_X && SIDE ) assign out =
+            right_valid ? ( right_out )                     :
+            left_valid  ? ( left_out + RIGHT_INPUT_WIDTH )  :
+            {OUTPUT_WIDTH{1'bx}};
 
     endgenerate
 
